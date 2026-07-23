@@ -1,6 +1,6 @@
 id = "wesl"
 name = "WESL"
-version = "0.1.0"
+version = "0.1.1"
 schema_version = 1
 authors = ["Flynn Datoo"]
 description = "WESL and WGSL language support backed by the wesl-rs reference compiler"
