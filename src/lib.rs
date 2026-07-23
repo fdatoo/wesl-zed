@@ -117,27 +117,30 @@ impl zed::Extension for WeslExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
-        let settings = LspSettings::for_worktree(SERVER_NAME, worktree)?;
-        if let Some(binary) = settings.binary
-            && let Some(path) = binary.path
-        {
+        let settings = LspSettings::for_worktree(SERVER_NAME, worktree).unwrap_or_default();
+        let args = settings
+            .binary
+            .as_ref()
+            .and_then(|binary| binary.arguments.clone())
+            .unwrap_or_default();
+        if let Some(path) = settings.binary.and_then(|binary| binary.path) {
             return Ok(zed::Command {
                 command: path,
-                args: binary.arguments.unwrap_or_default(),
-                env: Default::default(),
+                args,
+                env: worktree.shell_env(),
             });
         }
         if let Some(path) = worktree.which(SERVER_NAME) {
             return Ok(zed::Command {
                 command: path,
-                args: Vec::new(),
-                env: Default::default(),
+                args,
+                env: worktree.shell_env(),
             });
         }
         Ok(zed::Command {
             command: self.downloaded_binary_path(language_server_id)?,
-            args: Vec::new(),
-            env: Default::default(),
+            args,
+            env: worktree.shell_env(),
         })
     }
 
@@ -146,7 +149,9 @@ impl zed::Extension for WeslExtension {
         _language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<zed::serde_json::Value>> {
-        Ok(LspSettings::for_worktree(SERVER_NAME, worktree)?.initialization_options)
+        Ok(LspSettings::for_worktree(SERVER_NAME, worktree)
+            .ok()
+            .and_then(|settings| settings.initialization_options))
     }
 
     fn language_server_workspace_configuration(
@@ -154,7 +159,9 @@ impl zed::Extension for WeslExtension {
         _language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<zed::serde_json::Value>> {
-        Ok(LspSettings::for_worktree(SERVER_NAME, worktree)?.settings)
+        Ok(LspSettings::for_worktree(SERVER_NAME, worktree)
+            .ok()
+            .and_then(|settings| settings.settings))
     }
 }
 
