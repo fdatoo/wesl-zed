@@ -1,0 +1,15 @@
+id = "wesl"
+name = "WESL"
+version = "0.1.0"
+schema_version = 1
+authors = ["Flynn Datoo"]
+description = "WESL and WGSL language support backed by the wesl-rs reference compiler"
+repository = "https://github.com/fdatoo/wesl-zed"
+
+[language_servers.wesl-lsp]
+name = "wesl-lsp"
+languages = ["WESL"]
+
+[grammars.wesl]
+repository = "https://github.com/wgsl-tooling-wg/tree-sitter-wesl"
+commit = "3fa2b96bf5c217dae9bf663e2051fcdad0762c19"
